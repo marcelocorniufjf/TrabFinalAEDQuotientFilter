@@ -25,7 +25,7 @@
             pictureBox1.Location = new Point(14, 14);
             pictureBox1.Margin = new Padding(4, 3, 4, 3);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(1421, 173);
+            pictureBox1.Size = new Size(983, 173);
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
@@ -76,7 +76,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(1139, 190);
+            label1.Location = new Point(701, 194);
             label1.Name = "label1";
             label1.Size = new Size(296, 15);
             label1.TabIndex = 6;
@@ -86,7 +86,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1448, 231);
+            ClientSize = new Size(1008, 231);
             Controls.Add(label1);
             Controls.Add(txtValue);
             Controls.Add(btnDelete);

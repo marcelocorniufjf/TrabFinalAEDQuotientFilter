@@ -5,11 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Net.Sockets;
 
 namespace QuotientFilterWinForms
 {
     public class Slot
     {
+        public int Quotient { get; set; }
         public int Remainder { get; set; }
         public bool BucketOccupied { get; set; }
         public bool RunContinued { get; set; }
@@ -18,6 +20,7 @@ namespace QuotientFilterWinForms
 
         public Slot()
         {
+            Quotient = 0;
             Remainder = 0;
             BucketOccupied = false;
             RunContinued = false;
@@ -164,8 +167,9 @@ namespace QuotientFilterWinForms
 
             int index = quotient;
             bool isFalsePositive = false;
+            int count = 0;
 
-            while (filter[index].BucketOccupied)
+            while (filter[index].BucketOccupied && count <= size)
             {
                 if (filter[index].Remainder == remainder)
                 {
@@ -177,15 +181,16 @@ namespace QuotientFilterWinForms
                     }
                     else
                     {
-                        isFalsePositive = true;
-                        break;
+                        //isFalsePositive = true;
+                        //break;
                     }
                 }
 
-                if (!filter[index].RunContinued)
-                    break;
+                //if (!filter[index].RunContinued)
+                //    break;
 
                 index = (index + 1) % size;
+                count++;
             }
 
             if (isFalsePositive)
@@ -299,49 +304,86 @@ namespace QuotientFilterWinForms
             DrawFilter();
         }
 
-        private void InsertSlot(int index, int remainder, int key, int originalIndex)
-        {
-            bool shifted = false;
-            bool runContinued = false;
+        //public bool Insert(int key)
+        //{
+        //    int quotient = key >> r; // Quociente
+        //    int remainder = key & ((1 << r) - 1); // Resto
 
-            while (filter[index].BucketOccupied)
-            {
-                if (filter[index].Key == key)
-                {
-                    operationDetails = $"Valor duplicado {key} não inserido.";
-                    DrawFilter();
-                    return;
-                }
+        //    for (int i = 0; i < size; i++)
+        //    {
+        //        int index = (quotient + i) % size;
 
-                // Marcar o slot original como continuado se estamos deslocando a partir do slot original
-                if (index == originalIndex)
-                {
-                    runContinued = true;
-                }
+        //        if (!filter[index].BucketOccupied)
+        //        {
+        //            InsertSlot(index, remainder, key, quotient);
+        //            operationDetails = $"Inserindo {key} (Q: {quotient}, R: {remainder})";
+        //            return true;
+        //        }
+        //        else if (filter[index].Quotient == quotient && filter[index].Remainder == remainder)
+        //        {
+        //            // Valor já presente
+        //            return false;
+        //        }
+        //        else
+        //        {
+        //            // Deslocar o elemento atual e continuar a inserção
+        //            int currentQuotient = filter[index].Quotient;
+        //            int currentRemainder = filter[index].Remainder;
+        //            bool currentIsShifted = filter[index].IsShifted;
+        //            bool currentRunContinued = filter[index].RunContinued;
 
-                index = (index + 1) % size;
-                shifted = true;
-            }
+        //            InsertSlot(index, remainder, key, quotient);
+        //            operationDetails = $"Inserindo {key} (Q: {quotient}, R: {remainder})";
+        //            quotient = currentQuotient;
+        //            remainder = currentRemainder;
+        //            i = 0; // Reiniciar a busca para o próximo slot
 
-            filter[originalIndex].RunContinued = runContinued;
+        //            if (!currentIsShifted)
+        //            {
+        //                filter[index].RunContinued = true;
+        //            }
+        //        }
+        //    }
 
-            filter[index].Remainder = remainder;
-            filter[index].BucketOccupied = true;
-            filter[index].IsShifted = shifted;
-            filter[index].Key = key;
-        }
+        //    // Redimensionar e rehash se necessário
+        //    Resize();
 
-        private bool IsFull()
-        {
-            foreach (var slot in filter)
-            {
-                if (!slot.BucketOccupied)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
+        //    return Insert(key);
+        //}
+
+        //private void InsertSlot(int index, int remainder, int key, int originalIndex)
+        //{
+        //    if (!filter[index].BucketOccupied)
+        //    {
+        //        filter[index].Quotient = originalIndex;
+        //        filter[index].Remainder = remainder;
+        //        filter[index].BucketOccupied = true;
+
+        //        // Atualizar metadados
+        //        if (index != originalIndex)
+        //        {
+        //            filter[index].IsShifted = true;
+        //            filter[(index - 1 + size) % size].RunContinued = true;
+        //        }
+
+        //        DrawFilter();
+        //        DrawMetadata(Graphics.FromHwnd(pictureBox.Handle), index, filter[index].ToString());
+        //    }
+        //    else
+        //    {
+        //        // Deslocar o elemento atual
+        //        int currentQuotient = filter[index].Quotient;
+        //        int currentRemainder = filter[index].Remainder;
+
+        //        filter[index].Quotient = originalIndex;
+        //        filter[index].Remainder = remainder;
+        //        filter[index].IsShifted = true;
+        //        filter[index].RunContinued = true;
+
+        //        // Recursão para inserir o elemento deslocado no próximo slot
+        //        InsertSlot((index + 1) % size, currentRemainder, key, currentQuotient);
+        //    }
+        //}
 
         private void Resize()
         {
@@ -378,6 +420,79 @@ namespace QuotientFilterWinForms
             }
 
             operationDetails = $"Filtro redimensionado para tamanho {size}";
+        }
+
+        //private void Resize()
+        //{
+        //    var oldBuckets = filter;
+        //    size *= 2;
+        //    filter = new Slot[size];
+
+        //    for (int i = 0; i < size; i++)
+        //    {
+        //        filter[i] = new Slot();
+        //    }
+
+        //    foreach (var bucket in oldBuckets)
+        //    {
+        //        if (bucket.BucketOccupied)
+        //        {
+        //            Insert((bucket.Quotient << r) | bucket.Remainder);
+        //        }
+        //    }
+        //}
+
+
+        private void InsertSlot(int index, int remainder, int key, int originalIndex)
+        {
+            bool shifted = false;
+            bool runContinued = false;
+
+            while (filter[index].BucketOccupied)
+            {
+                if (filter[index].Key == key)
+                {
+                    operationDetails = $"Valor duplicado {key} não inserido.";
+                    DrawFilter();
+                    return;
+                }
+
+                // Marcar o slot original como continuado se estamos deslocando a partir do slot original
+                if (index == originalIndex)
+                {
+                    runContinued = true;
+                }
+
+                int x = originalIndex;
+
+                foreach (var slot in filter.Where(f => f.BucketOccupied == true && f.Quotient == originalIndex))
+                {
+                    slot.RunContinued = true;
+                }
+
+                index = (index + 1) % size;
+                shifted = true;
+            }
+
+            filter[originalIndex].RunContinued = runContinued;
+
+            filter[index].Quotient = originalIndex;
+            filter[index].Remainder = remainder;
+            filter[index].BucketOccupied = true;
+            filter[index].IsShifted = shifted;
+            filter[index].Key = key;
+        }
+
+        private bool IsFull()
+        {
+            foreach (var slot in filter)
+            {
+                if (!slot.BucketOccupied)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private void HighlightSlot(int index, Color color, int key, int quotient, int remainder)

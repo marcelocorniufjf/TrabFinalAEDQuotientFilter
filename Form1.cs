@@ -60,7 +60,7 @@ namespace QuotientFilterWinForms
         {
             if (e.Alt == true && e.KeyCode == Keys.P)
             {
-                pictureBox1.Image.Save($"E:\\Mestrado\\Disciplinas\\AED\\Trabalho Final\\Imagens\\BF_{operacao}_{DateTime.Now.ToString("yyyyMMddHHmmss")}.jpg", ImageFormat.Png);                
+                pictureBox1.Image.Save($"E:\\Mestrado\\Disciplinas\\AED\\Trabalho Final\\Imagens\\QF_{operacao}_{DateTime.Now.ToString("yyyyMMddHHmmss")}.jpg", ImageFormat.Png);                
             }
         }
     }
